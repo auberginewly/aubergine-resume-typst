@@ -29,9 +29,12 @@ TYPST_FLAGS ?=
 DOCTOR_FLAGS ?=
 CHECK_FONTS := $(if $(filter original,$(FONT_PRESET)),TYPST="$(TYPST)" $(PYTHON) scripts/check_original_fonts.py --settings "$(SETTINGS)" $(filter --ignore-system-fonts,$(TYPST_FLAGS)),:)
 
-.PHONY: all pdf en original original-en preview watch info check doctor example check-example clean test FORCE
+.PHONY: all pdf init en original original-en preview watch info check doctor example check-example clean test FORCE
 all: pdf
 pdf: $(PDF)
+
+init:
+	$(PYTHON) scripts/init_personal.py
 
 # 输入路径、编译参数变化也必须生效，不能只依赖源文件修改时间。
 $(PDF): $(SOURCE) Makefile FORCE
@@ -80,6 +83,7 @@ clean:
 	rm -rf output
 
 test:
+	$(PYTHON) tests/test_init.py
 	$(PYTHON) tests/test_template.py
 	$(PYTHON) tests/test_personalization.py
 	$(PYTHON) tests/test_doctor.py

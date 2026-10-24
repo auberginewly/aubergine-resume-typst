@@ -84,7 +84,7 @@ brew install typst tinymist
 
 Linux 用户安装对应平台的 Typst、Tinymist 与 GNU Make 后，在仓库根目录运行下面的命令。Makefile 使用 `cp`、`mkdir`、`rm` 等 POSIX 命令；Windows 用户需要在提供这些命令的环境中运行 Make，也可使用下方的原生 Typst 命令直接编译。
 
-安装后，可使用 Python 3.9+ 运行环境检查；若系统没有 Python，可在 macOS 上执行 `brew install python`：
+个人文件初始化和环境检查需要 Python 3.9+；若系统没有 Python，可在 macOS 上执行 `brew install python`。安装后运行：
 
 ```bash
 make doctor                                      # 检查导出工具、当前字体与字体校验值
@@ -98,13 +98,13 @@ make doctor TYPST_FLAGS=--ignore-system-fonts     # 排除系统字体后检查
 
 ### 3. 填写自己的内容
 
-建议先把示例复制到被 Git 忽略的个人目录，保留公开示例：
+先初始化被 Git 忽略的个人目录，保留公开示例：
 
 ```bash
-mkdir -p resume/private
-cp resume/content.toml resume/private/content.toml
-cp resume/content.en.toml resume/private/content.en.toml
+make init
 ```
+
+命令只会从公开示例创建缺失的 `resume/private/content.toml` 和 `resume/private/content.en.toml`。可以重复运行：已有文件保持原样并提示跳过；只存在一种语言时，仅补齐另一份文件。不使用 Make 时，可运行 `python3 scripts/init_personal.py`（Windows 可用 `python scripts/init_personal.py`）。
 
 随后编辑 `resume/private/content.toml` 和 `resume/private/content.en.toml`。两个文件都需要用自己的事实替换示例；默认命令仍读取公开虚构示例，不会自动切换到个人内容。
 
