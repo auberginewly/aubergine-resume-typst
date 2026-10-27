@@ -265,6 +265,7 @@ make check CONTENT=resume/private/content.toml   # 个人内容
 | 内容 | 字段约定 |
 | --- | --- |
 | `[profile]` | `name` 为非空字符串；其他联系方式为可选字符串 |
+| `[section-titles]` | 可选章节标题覆盖；仅支持六个现有章节键，值为非空纯文本字符串 |
 | 顶层 `skills`，条目的 `summary` / `bullets`，教育 `tags` | 字符串数组，可为空或省略 |
 | `[[education]]` | `school`、`detail`、`date` 为必填非空字符串 |
 | `[[experience]]`、`[[open-source]]`、`[[projects]]` 及嵌套项目 | `title` 为必填非空字符串；其他文字字段为可选字符串 |
@@ -284,6 +285,20 @@ make check CONTENT=resume/private/content.toml   # 个人内容
 - 章节条目为空或未填写时，章节标题自动隐藏。
 
 教育的 `tags` 是可选数组，学校、标签、专业和学历同排，日期右对齐。完整字段可参考[中文公开示例](resume/content.toml)和[英文公开示例](resume/content.en.toml)。
+
+### 自定义章节标题
+
+在所选内容文件中添加顶层 `[section-titles]` 表，例如放在顶层 `skills` 数组之后、`[profile]` 之前：
+
+```toml
+[section-titles]
+experience = "工作经历"
+projects = "个人项目"
+```
+
+支持 `education`、`skills`、`experience`、`open-source`、`projects`、`publications` 六个章节键。未配置的标题沿用当前语言默认值，空表也保持全部默认值。值必须是非空纯文本字符串；仅含空白、类型错误或未知键都会明确报错。标题不解析加粗、链接或 Typst 代码。空章节仍然隐藏，章节顺序和样式保持原样。
+
+中英文内容文件分别维护各自的标题覆盖，两种字体预设都使用所选内容中的标题，无需修改模板或设置。
 
 ### 公司卡片与多个项目
 

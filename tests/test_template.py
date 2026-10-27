@@ -247,12 +247,66 @@ class TemplateTests(unittest.TestCase):
             ('data + (education: ((school: "Fixture", date: "20XX", detail: "Degree", tags: (1,)),))', 'education[1].tags[1]'),
             ('data + (publications: ((title: "Fixture",),))', 'publications[1].detail 缺少必填字段'),
             ('data + (projects: ((title: "Fixture", summmary: ()),))', 'projects[1].summmary 是未知字段'),
+            ('data + ("section-titles": (),)', 'section-titles 必须是 TOML 表'),
+            ('data + ("section-titles": (experince: "Work"),)', 'section-titles.experince 是未知字段'),
+            ('data + ("section-titles": (details: "Work"),)', 'section-titles.details 是未知字段'),
+            ('data + ("section-titles": (experience: 123),)', 'section-titles.experience 必须是字符串'),
+            ('data + ("section-titles": (experience: "  "),)', 'section-titles.experience 不能为空'),
         )
         for index, (content, message) in enumerate(invalid):
             with self.subTest(message=message):
                 _, result = self.compile(self.fixture("invalid-content-" + str(index), content), success=False)
                 self.assertNotEqual(result.returncode, 0)
                 self.assertIn(message, result.stderr)
+
+    def test_section_title_overrides_and_language_defaults(self):
+        for language, experience, projects, defaults in (
+            ("zh", "工作经历", "个人项目", ("教育背景", "个人技能", "开源贡献", "论文成果")),
+            ("en", "Employment", "Selected Work", ("Education", "Skills", "Open Source", "Publications")),
+        ):
+            with self.subTest(language=language):
+                content = 'toml("/tests/fixtures/content.en.toml")' if language == "en" else 'data'
+                titles = '("section-titles": (experience: "' + experience + '", projects: "' + projects + '"),)'
+                source = self.fixture("titles-" + language, content + ' + ' + titles)
+                pdf, _ = self.compile(source, ("--input", "lang=" + language))
+                text = self.extract(pdf)
+                headings = (defaults[0], defaults[1], experience, defaults[2], projects, defaults[3])
+                positions = [text.index(heading) for heading in headings]
+                self.assertEqual(positions, sorted(positions))
+                self.assertNotIn("实习经历" if language == "zh" else "Experience", text)
+                # 空覆盖表与未配置时具有相同输出和测量结果。
+                empty = self.fixture("empty-titles-" + language, content + ' + ("section-titles": (:),)')
+                empty_pdf, _ = self.compile(empty, ("--input", "lang=" + language))
+                default_pdf, _ = self.compile(self.source, ("--input", "lang=" + language))
+                self.assertEqual(self.extract(empty_pdf), self.extract(default_pdf))
+                self.assertEqual(self.metrics(empty, ("--input", "lang=" + language)),
+                                 self.metrics(self.source, ("--input", "lang=" + language)))
+
+    def test_all_section_titles_and_literal_text(self):
+        titles = dict(zip(("education", "skills", "experience", "open-source", "projects", "publications"),
+                          ("Academic Background", "Capabilities", "Career", "Community Work", "Portfolio", "Writing")))
+        entries = ', '.join(json.dumps(key) + ': ' + json.dumps(value) for key, value in titles.items())
+        source = self.fixture("all-titles", 'data + ("section-titles": (' + entries + '),)')
+        for language in ("zh", "en"):
+            pdf, _ = self.compile(source, ("--input", "lang=" + language))
+            text = self.extract(pdf)
+            for title in titles.values():
+                self.assertIn(title, text)
+            self.assertNotIn("教育背景", text)
+            self.assertNotIn("Education", text)
+        literal = self.fixture("literal-title", 'data + ("section-titles": (experience: "#pagebreak() **Work**"),)')
+        pdf, _ = self.compile(literal)
+        self.assertIn("#pagebreak() **Work**", self.extract(pdf))
+
+    def test_overridden_titles_do_not_show_empty_sections(self):
+        minimal = '(profile: (name: "Empty sections"), skills: (), experience: (), '
+        minimal += '"section-titles": (education: "Hidden Education", skills: "Hidden Skills", '
+        minimal += 'experience: "Hidden Work", "open-source": "Hidden Open Source", '
+        minimal += 'projects: "Hidden Projects", publications: "Hidden Publications"))'
+        source = self.fixture("hidden-titles", minimal)
+        for language in ("zh", "en"):
+            pdf, _ = self.compile(source, ("--input", "lang=" + language))
+            self.assertEqual(self.extract(pdf).strip(), "Empty sections")
 
     def test_partial_contacts_and_label_fallbacks(self):
         profiles = (
@@ -446,6 +500,21 @@ class BuildBoundaryTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("内容字段检查通过", result.stdout)
         self.assertEqual(list((self.workspace / "output").rglob("*.pdf")), before)
+
+    def test_check_validates_section_titles(self):
+        selected = self.workspace / "resume/private"
+        selected.mkdir(exist_ok=True)
+        content = selected / "titles.toml"
+        command = ["make", "check", "CONTENT=resume/private/titles.toml", "TYPST=" + self.typst]
+        for value, message in (('123', '必须是字符串'), ('"  "', '不能为空'), ('"Work History"', None)):
+            content.write_text('[profile]\nname = "Title Fixture"\n[section-titles]\nexperience = ' + value + '\n',
+                               encoding="utf-8")
+            result = subprocess.run(command, cwd=self.workspace, text=True, capture_output=True)
+            if message:
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("section-titles.experience " + message, result.stderr)
+            else:
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_original_preflight_reads_custom_fonts(self):
         settings = self.workspace / "resume/settings.original.toml"

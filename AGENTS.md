@@ -32,6 +32,8 @@
 
 联系方式可全部省略；空章节隐藏。保留教育标签、链接、Stars 格式化与内容不执行 Typst 代码的边界。
 
+内容文件的可选 `[section-titles]` 表支持 education、skills、experience、open-source、projects、publications 六个章节的非空纯文本标题覆盖；未配置时保留对应语言默认值，空章节仍隐藏。更改章节名称时优先使用此配置，不修改模板。
+
 ## 验证与导出
 
 ```bash
