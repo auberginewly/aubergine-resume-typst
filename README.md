@@ -221,6 +221,7 @@ The same content validator runs during compilation and live preview. `make check
 | Field or section | Expected value |
 | --- | --- |
 | `[profile]` | Nonempty string `name`; optional string contact fields |
+| `[section-titles]` | Optional section-name overrides; nonempty plain strings for the six supported section keys |
 | `skills`, `summary`, `bullets`, education `tags` | Arrays of strings; may be empty or omitted where supported |
 | `[[education]]` | Required nonempty strings `school`, `detail`, `date` |
 | `[[experience]]`, `[[open-source]]`, `[[projects]]`, nested projects | Required nonempty string `title`; other text fields are optional strings |
@@ -231,6 +232,20 @@ The same content validator runs during compilation and live preview. `make check
 Field names are case-sensitive. Unknown fields are rejected to catch spelling errors.
 
 Only `name` is required in `[profile]`. Omit or leave blank any contact field; its icon and spacing disappear. `phone-display` falls back to `phone`, `github-name` to the final URL segment, and `website-label` to the URL without its protocol and outer slashes. Empty or missing sections are hidden.
+
+### Custom section titles
+
+Add a top-level `[section-titles]` table to the selected content file, for example after the top-level `skills` array and before `[profile]`:
+
+```toml
+[section-titles]
+experience = "Work Experience"
+projects = "Selected Projects"
+```
+
+Supported keys are `education`, `skills`, `experience`, `open-source`, `projects`, and `publications`. Omitted keys keep the selected language's defaults; an empty table also keeps all defaults. Values must be nonempty plain strings; whitespace-only values, incorrect types, and unknown keys are rejected. Titles do not interpret bold, links, or Typst code. Empty or missing sections stay hidden, and section order and styling are unchanged.
+
+Maintain overrides separately in the Chinese and English content files. Titles belong to the content and apply with either font preset; no template or settings edits are needed.
 
 ### Company cards and multiple projects
 

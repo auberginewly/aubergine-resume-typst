@@ -7,6 +7,10 @@ skills = [
   "**Visual Communication**: Draw simple maps and posters; create visitor cards, table signs and supply labels.",
 ]
 
+# Optional: uncomment the next two lines to customize the experience heading.
+# [section-titles]
+# experience = "Work Experience"
+
 [profile]
 name = "Chiikawa (Fictional Sample)"
 phone = "+8600000000000"

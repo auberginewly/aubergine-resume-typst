@@ -40,7 +40,14 @@
   }
 
   let sections = ("education", "experience", "open-source", "projects", "publications")
-  table(data, "内容", ("profile", "skills", ..sections))
+  table(data, "内容", ("profile", "skills", "section-titles", ..sections))
+  if "section-titles" in data {
+    let titles = data.at("section-titles")
+    table(titles, "section-titles", ("skills", ..sections))
+    for key in titles.keys() {
+      string-field(titles, key, "section-titles", required: true)
+    }
+  }
   assert("profile" in data, message: "缺少 [profile]，请填写 name。")
   let contacts = ("name", "phone", "phone-display", "email", "github", "github-name", "website", "website-label")
   table(data.profile, "profile", contacts)

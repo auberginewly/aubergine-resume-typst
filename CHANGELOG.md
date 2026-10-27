@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Allow optional `[section-titles]` overrides in each language's content file, preserving default headings, section order, styling and empty-section hiding; validate keys and nonempty string values.
+
 ## v0.1.0 — 2026-10-23
 
 First public release of the bilingual Typst resume template.

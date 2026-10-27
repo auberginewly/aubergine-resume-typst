@@ -101,6 +101,7 @@
     (education: "教育背景", skills: "个人技能", experience: "实习经历", "open-source": "开源贡献",
       projects: "项目经历", publications: "论文成果", details: "详细产出", project: "项目链接")
   }
+  labels += data.at("section-titles", default: (:))
   let body-font = fonts.body
   let bold-font = fonts.heading
   let styled(value) = rich(value, font: bold-font)
