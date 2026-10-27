@@ -56,7 +56,7 @@ Run the following commands from the repository root.
 
 ### 2. Install the tools
 
-Export needs [Typst](https://github.com/typst/typst/releases) and GNU Make. Live browser preview also needs [Tinymist](https://github.com/Myriad-Dreamin/tinymist/releases). Python 3.9+ is needed for the environment checker, original-font preflight, and tests. On macOS:
+Export needs [Typst](https://github.com/typst/typst/releases) and GNU Make. Live browser preview also needs [Tinymist](https://github.com/Myriad-Dreamin/tinymist/releases). Python 3.9+ is needed for personal-file initialization, the environment checker, original-font preflight, and tests. On macOS:
 
 ```bash
 brew install typst tinymist python
@@ -76,13 +76,13 @@ Missing required tools, configured fonts, or altered bundled fonts cause a nonze
 
 ### 3. Create your personal content files
 
-Keep the public examples intact by copying them to the ignored personal directory:
+Keep the public examples intact by initializing the ignored personal directory:
 
 ```bash
-mkdir -p resume/private
-cp resume/content.toml resume/private/content.toml
-cp resume/content.en.toml resume/private/content.en.toml
+make init
 ```
+
+This creates only missing `resume/private/content.toml` and `resume/private/content.en.toml` files from the public examples. It is safe to run again: existing files are preserved and reported as skipped, even when only one language file exists. Without Make, run `python3 scripts/init_personal.py` (or `python scripts/init_personal.py` on Windows).
 
 Replace the fictional entries with your own facts. The two language files are maintained separately; changing the language does not translate the content.
 
