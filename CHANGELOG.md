@@ -1,8 +1,16 @@
 # Changelog
 
-## Unreleased
+## v0.2.0 — 2026-10-27
 
+- Add `make init` / `python3 scripts/init_personal.py` to create only missing personal content files with exclusive creation; preserve existing files during repeated or concurrent initialization and report directory conflicts.
 - Allow optional `[section-titles]` overrides in each language's content file, preserving default headings, section order, styling and empty-section hiding; validate keys and nonempty string values.
+- Update both guides with safe initialization and custom heading examples, and include commented heading configuration in the fictional content samples.
+- Make the English README the default repository guide, with a Simplified Chinese language switch; builds still default to Chinese.
+- Add regression coverage for initialization, existing bytes and timestamps, symlinks, missing sources, directory conflicts, bilingual headings, literal text and indexed validation errors.
+
+Thanks to [Jaxon1216](https://github.com/Jaxon1216) for the safe initialization fix in [#4](https://github.com/auberginewly/aubergine-resume-typst/pull/4). Custom section titles are included in [#5](https://github.com/auberginewly/aubergine-resume-typst/pull/5).
+
+Existing content requires no migration. Remove `[section-titles]` before using a content file with the older template. The default layout and fictional sample attachments are unchanged from v0.1.0.
 
 ## v0.1.0 — 2026-10-23
 
